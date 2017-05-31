@@ -4,17 +4,12 @@
  */
 package model.dao;
 
-import SpotNet.ConexaoPostGres;
-import SpotNet.SpotNet;
 import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.FileReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -24,24 +19,113 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
-import javax.swing.table.DefaultTableModel;
+
+import SpotNet.SpotNet;
 import model.entity.Autor;
 
 /**
- *
- * @author contdiego
+ * Classe para persistência de autor no banco de dados.
+ * 
+ * @author Infnet
  */
-public class AutorDAO 
-{
+public class AutorDao implements Dao<Autor>{
     
-    protected Connection connection;
+	private static final Logger LOGGER = Logger.getLogger(AutorDao.class.getName());
+	
+    private Connection connection;
     ConexaoPostGres conexao = new ConexaoPostGres();
     
+    @Override
+    public List<Autor> buscar(Autor autor) {
+    	
+    	List<Autor> autores = new ArrayList<>();
+
+    	try {
+    		connection = conexao.conectar();
+    		
+    		String sql = "select * from autor where nome like '%?%' and foto is not null";
+
+    		PreparedStatement stmt = connection.prepareStatement(sql);
+    		stmt.setString(1, autor.getNome());
+
+    		ResultSet rs = stmt.executeQuery(sql);
+
+            while (rs.next()) {
+                try {
+                	
+                    byte[] imageData = rs.getBytes("foto");
+                    
+                    File tmpFile = new File("tmpImage");
+                    FileOutputStream fos = new FileOutputStream(tmpFile);
+                   
+                    fos.write(imageData);
+                    fos.close();
+                    
+                    String ss=tmpFile.getAbsolutePath();
+                    BufferedImage bf=ImageIO.read(new File(ss));
+                    
+                    ImageIcon image = new ImageIcon(bf);
+                    
+                    Autor ObjAut = new Autor();
+                    ObjAut.setFoto(image);
+                    ObjAut.setNome(rs.getString("nome"));
+                    ObjAut.setId_autor(rs.getInt("id_autor"));
+
+                    autores.add(ObjAut);
+                    
+                } catch(Exception e) {
+                    e.printStackTrace();
+                    LOGGER.log(Level.SEVERE, e.getMessage());
+                }
+                
+            }
+            connection.close();
+            
+        } catch (SQLException ex) {
+        	LOGGER.log(Level.SEVERE, ex.getMessage());
+        }
+        
+        return autores;
+    	
+    }
     
-    public List<Autor> BuscaAutor(String nome)
-    {
+    @Override
+    public void alterar(Autor autor) {
+    	
+    	connection = conexao.conectar();
+    	try {
+        
+            String query = "update autor set nome=? where id_autor=?";
+            
+            PreparedStatement stmt = connection.prepareStatement(query);   
+            stmt.setString(1, autor.getNome());
+            stmt.setInt(2, autor.getId_autor());
+            
+            stmt.execute();
+            connection.commit();
+            connection.close();
+            
+    	 } catch (SQLException ex) {
+         	LOGGER.log(Level.SEVERE, ex.getMessage());
+         } 
+    }
+    
+    @Override
+    public void excluir(Autor entity) {
+    }
+    
+    
+    @Override
+    public void inserir(Autor entity) {
+
+    }
+    
+    
+    
+   /* public List<Autor> BuscaAutor(String nome) {
         connection = conexao.conectar();
         Statement stmt = null;
         List<Autor> autores = new ArrayList();
@@ -97,14 +181,9 @@ public class AutorDAO
         
         return autores;
 
-    }   
+    }   */
     
-    
-    
-    
-    
-    
-     public void AlteraAutor(String nome, Autor objAutor) throws SQLException
+    /*public void AlteraAutor(String nome, Autor objAutor) throws SQLException
     {
         connection = conexao.conectar();
         Statement stmt = null;
@@ -125,14 +204,9 @@ public class AutorDAO
                 connection.commit();
                 connection.close();
             }
-        }
+        }*/
      
-     
-     
-     
-     
-     
-      public void ExcluiAutor(Autor objAutor) throws SQLException
+    public void ExcluiAutor(Autor objAutor) throws SQLException
     {
         connection = conexao.conectar();
         Statement stmt = null;
@@ -154,10 +228,6 @@ public class AutorDAO
                 connection.close();
             }
         }
-    
-    
-    
-    
     
     public void InsereAutor(String nome, File selFile) throws SQLException
     {
@@ -189,7 +259,6 @@ public class AutorDAO
                 connection.close();
             }
         }
-    
     
     public void ImportaAutores(BufferedReader br) throws IOException
     {

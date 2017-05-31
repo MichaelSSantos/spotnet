@@ -1,4 +1,4 @@
-package SpotNet;
+package model.dao;
 
 import java.sql.*;
 import java.sql.Connection;

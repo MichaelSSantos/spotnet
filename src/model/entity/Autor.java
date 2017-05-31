@@ -1,5 +1,4 @@
 /*
- * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
 package model.entity;
@@ -7,42 +6,36 @@ package model.entity;
 import javax.swing.ImageIcon;
 
 /**
- *
- * @author contdiego
+ * Entidade Autor
  */
 public class Autor {
-    
-    int id_autor;
-    String nome;
-    ImageIcon foto;
 
-    public int getId_autor() {
-        return id_autor;
-    }
+	Integer id_autor;
+	String nome;
+	ImageIcon foto;
 
-    public void setId_autor(int id_autor) {
-        this.id_autor = id_autor;
-    }
+	public Integer getId_autor() {
+		return id_autor;
+	}
 
-    public String getNome() {
-        return nome;
-    }
+	public void setId_autor(Integer id_autor) {
+		this.id_autor = id_autor;
+	}
 
-    public void setNome(String nome) {
-        this.nome = nome;
-    }
+	public String getNome() {
+		return nome;
+	}
 
-    public ImageIcon getFoto() {
-        return foto;
-    }
+	public void setNome(String nome) {
+		this.nome = nome;
+	}
 
-    public void setFoto(ImageIcon foto) {
-        this.foto = foto;
-    }
+	public ImageIcon getFoto() {
+		return foto;
+	}
 
-  
-    
-    
-    
-    
+	public void setFoto(ImageIcon foto) {
+		this.foto = foto;
+	}
+
 }

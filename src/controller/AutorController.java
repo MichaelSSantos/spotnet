@@ -11,10 +11,13 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
-import model.dao.AutorDAO;
+
+import model.dao.AutorDao;
+import model.dao.Dao;
 import model.entity.Autor;
 
 /**
@@ -22,28 +25,37 @@ import model.entity.Autor;
  * @author contdiego
  */
 public class AutorController {
-    AutorDAO objDAO=new AutorDAO();
-    List<Autor> autores = new ArrayList();
+	
+    Dao<Autor> autorDao = new AutorDao();
+    List<Autor> autores = new ArrayList<>();
+    Autor autor = new Autor();
+    
     public List<Autor> BuscaAutor(String nome)
     {
-        return objDAO.BuscaAutor(nome);
+//        return objDAO.BuscaAutor(nome);
+    	
+    	autor.setNome(nome);
+        return autorDao.buscar(autor);
     }
     
     
      public void InsereAutor(String nome, File selFile) throws SQLException
     {
-         objDAO.InsereAutor(nome, selFile);
+       /*  objDAO.InsereAutor(nome, selFile);*/
+    	//TODO em manutenção
     }
      
      
        public void AlteraAutor(String nome, Autor objAutor) throws SQLException
     {
-         objDAO.AlteraAutor(nome,objAutor);
+//         objDAO.AlteraAutor(nome,objAutor);
+         //TODO em manutenção
     }
        
     public void ExcluiAutor(Autor objAutor) throws SQLException
     {
-         objDAO.ExcluiAutor(objAutor);
+//         objDAO.ExcluiAutor(objAutor);
+         //TODO em manutenção
     }
        
        
@@ -51,7 +63,8 @@ public class AutorController {
      
     public void ImportaAutores(BufferedReader br) throws FileNotFoundException, IOException
     {        
-        objDAO.ImportaAutores(br);
+//        objDAO.ImportaAutores(br);
+        //TODO em manutenção
     }
     
     
