@@ -27,7 +27,7 @@ import model.entity.Autor;
 public class SpotNet extends javax.swing.JFrame {
     
     File selFile;
-    
+     
     
     AutorController objController=new AutorController();
     DefaultListModel listAutores = new DefaultListModel();
@@ -39,7 +39,7 @@ public class SpotNet extends javax.swing.JFrame {
     /**
      * Creates new form NewJFrame
      */
-    public SpotNet() {
+    public SpotNet()  {
         initComponents();
        
     }
