@@ -21,21 +21,48 @@ import model.dao.Dao;
 import model.entity.Autor;
 
 /**
+ * Classe de controle de autor
  *
- * @author contdiego
  */
-public class AutorController {
+public class AutorController extends Controller<Autor>{
 	
-    Dao<Autor> autorDao = new AutorDao();
     List<Autor> autores = new ArrayList<>();
     Autor autor = new Autor();
+    
+    public AutorController() {
+    	dao = new AutorDao();
+	}
+    
+    @Override
+    void alterar(Autor entity) {
+    	// TODO Auto-generated method stub
+    	
+    }
+    
+    @Override
+    List<Autor> buscar(Autor entity) {
+    	// TODO Auto-generated method stub
+    	return null;
+    }
+    
+    @Override
+    void excluir(Autor entity) {
+    	// TODO Auto-generated method stub
+    	
+    }
+    
+    @Override
+    void inserir(Autor entity) {
+    	// TODO Auto-generated method stub
+    	
+    }
     
     public List<Autor> BuscaAutor(String nome)
     {
 //        return objDAO.BuscaAutor(nome);
     	
     	autor.setNome(nome);
-        return autorDao.buscar(autor);
+        return dao.buscar(autor);
     }
     
     

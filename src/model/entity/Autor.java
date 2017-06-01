@@ -3,16 +3,19 @@
  */
 package model.entity;
 
+import java.io.File;
+
 import javax.swing.ImageIcon;
 
 /**
- * Entidade Autor
+ * Bean Autor
  */
 public class Autor {
 
-	Integer id_autor;
-	String nome;
-	ImageIcon foto;
+	private Integer id_autor;
+	private String nome;
+	private ImageIcon foto;
+	private File selFile;
 
 	public Integer getId_autor() {
 		return id_autor;
@@ -36,6 +39,14 @@ public class Autor {
 
 	public void setFoto(ImageIcon foto) {
 		this.foto = foto;
+	}
+
+	public File getSelFile() {
+		return selFile;
+	}
+
+	public void setSelFile(File selFile) {
+		this.selFile = selFile;
 	}
 
 }

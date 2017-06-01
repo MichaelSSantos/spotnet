@@ -14,7 +14,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
@@ -23,7 +22,6 @@ import java.util.logging.Logger;
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 
-import SpotNet.SpotNet;
 import model.entity.Autor;
 
 /**
@@ -34,20 +32,20 @@ import model.entity.Autor;
 public class AutorDao implements Dao<Autor>{
     
 	private static final Logger LOGGER = Logger.getLogger(AutorDao.class.getName());
-	
-    private Connection connection;
-    ConexaoPostGres conexao = new ConexaoPostGres();
+
+	private Connection connection;
+    
+    public AutorDao() {
+    	this.connection = new ConexaoPostGres().conectar();
+    }
     
     @Override
     public List<Autor> buscar(Autor autor) {
     	
     	List<Autor> autores = new ArrayList<>();
+    	String sql = "select * from autor where nome like '%?%' and foto is not null";
 
     	try {
-    		connection = conexao.conectar();
-    		
-    		String sql = "select * from autor where nome like '%?%' and foto is not null";
-
     		PreparedStatement stmt = connection.prepareStatement(sql);
     		stmt.setString(1, autor.getNome());
 
@@ -55,7 +53,6 @@ public class AutorDao implements Dao<Autor>{
 
             while (rs.next()) {
                 try {
-                	
                     byte[] imageData = rs.getBytes("foto");
                     
                     File tmpFile = new File("tmpImage");
@@ -77,50 +74,112 @@ public class AutorDao implements Dao<Autor>{
                     autores.add(ObjAut);
                     
                 } catch(Exception e) {
-                    e.printStackTrace();
                     LOGGER.log(Level.SEVERE, e.getMessage());
+                    throw new RuntimeException(e);
+                
+                } finally {
+                	connection.close();
                 }
                 
             }
-            connection.close();
+            
+            return autores;
             
         } catch (SQLException ex) {
         	LOGGER.log(Level.SEVERE, ex.getMessage());
+        	throw new RuntimeException(ex);
         }
         
-        return autores;
     	
     }
     
     @Override
     public void alterar(Autor autor) {
     	
-    	connection = conexao.conectar();
+    	String sql = "update autor set nome=? where id_autor=?";
+    	
     	try {
-        
-            String query = "update autor set nome=? where id_autor=?";
-            
-            PreparedStatement stmt = connection.prepareStatement(query);   
-            stmt.setString(1, autor.getNome());
-            stmt.setInt(2, autor.getId_autor());
-            
-            stmt.execute();
-            connection.commit();
-            connection.close();
-            
-    	 } catch (SQLException ex) {
+    		try {
+    			PreparedStatement stmt = connection.prepareStatement(sql);   
+	            stmt.setString(1, autor.getNome());
+	            stmt.setInt(2, autor.getId_autor());
+	            
+	            stmt.execute();
+	            
+	    	 } catch (Exception ex) {
+	         	LOGGER.log(Level.SEVERE, ex.getMessage());
+	         	throw new RuntimeException(ex);
+	         	
+	         } finally {
+	        	 connection.commit();
+	             connection.close();
+	         }
+    	
+    	} catch (SQLException ex) {
          	LOGGER.log(Level.SEVERE, ex.getMessage());
-         } 
+         	throw new RuntimeException(ex);
+    	}
     }
     
     @Override
-    public void excluir(Autor entity) {
+    public void excluir(Autor autor) {
+        
+    	String sql = "delete from autor where id_autor=?";
+        
+        try {
+        	try {
+        		PreparedStatement stmt = connection.prepareStatement(sql);
+        		stmt.setInt(1, autor.getId_autor());
+                
+        		stmt.execute();
+            
+        	} catch (Exception ex) {
+	         	LOGGER.log(Level.SEVERE, ex.getMessage());
+	         	throw new RuntimeException(ex);
+            
+        	} finally {
+                 connection.commit();
+                 connection.close();
+            }
+        	
+        } catch (SQLException ex) {
+         	LOGGER.log(Level.SEVERE, ex.getMessage());
+         	throw new RuntimeException(ex);
+    	}
+        
     }
     
     
     @Override
-    public void inserir(Autor entity) {
+    public void inserir(Autor autor) {
+    	
+    	String sql = " insert into autor (nome,foto) values (?,?)";
+    	
+    	try {
+    		try {
+    			File image = new File(autor.getSelFile().getPath());
+    			FileInputStream  fis = new FileInputStream(image);
 
+                PreparedStatement stmt = connection.prepareStatement(sql);               
+                stmt.setString(1, autor.getNome());
+                stmt.setBinaryStream(2,fis,(int) (image.length()));
+
+                stmt.execute();
+    	
+            } catch (Exception ex) {
+            	LOGGER.log(Level.SEVERE, ex.getMessage());
+            	throw new RuntimeException(ex);
+    		
+    		} finally {
+                connection.commit();
+                connection.close();
+            }
+    	
+    	} catch (SQLException ex) {
+         	LOGGER.log(Level.SEVERE, ex.getMessage());
+         	throw new RuntimeException(ex);
+    	}
+    	
     }
     
     
@@ -206,7 +265,7 @@ public class AutorDao implements Dao<Autor>{
             }
         }*/
      
-    public void ExcluiAutor(Autor objAutor) throws SQLException
+   /* public void ExcluiAutor(Autor objAutor) throws SQLException
     {
         connection = conexao.conectar();
         Statement stmt = null;
@@ -227,9 +286,9 @@ public class AutorDao implements Dao<Autor>{
                 connection.commit();
                 connection.close();
             }
-        }
+        }*/
     
-    public void InsereAutor(String nome, File selFile) throws SQLException
+    /*public void InsereAutor(String nome, File selFile) throws SQLException
     {
         connection = conexao.conectar();
         Statement stmt = null;
@@ -258,7 +317,7 @@ public class AutorDao implements Dao<Autor>{
                 connection.commit();
                 connection.close();
             }
-        }
+        }*/
     
     public void ImportaAutores(BufferedReader br) throws IOException
     {
