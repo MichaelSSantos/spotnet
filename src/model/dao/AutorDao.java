@@ -34,7 +34,7 @@ public class AutorDao implements Dao<Autor>{
 	private Connection connection;
     
     public AutorDao() {
-    	this.connection = new ConexaoPostGres().conectar();
+    	this.connection = new ConnectionFactory().getConnection();
     }
     
     @Override

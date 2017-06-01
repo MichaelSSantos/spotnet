@@ -1,4 +1,4 @@
-package model.dao;
+/*package model.dao;
 
 import java.sql.*;
 import java.sql.Connection;
@@ -6,18 +6,18 @@ import java.sql.SQLException;
 import java.util.logging.Level;
 
 
-/**
+*//**
  *
  * @author contdiego
- */
+ *//*
 public class ConexaoPostGres {
 
     private static Connection connection;
 
-    /**
+    *//**
      * Chama m�todo criaConexao e retorna conexao aberta com o BD
      * @return Conexão aberta com o banco 
-     */
+     *//*
     public Connection conectar() {
         try {
             return criaConexao(false);
@@ -27,12 +27,12 @@ public class ConexaoPostGres {
         return null;
     }
 
-    /**
+    *//**
      * Cria conexão com o banco de dados
      * @param autocommit   
      * @return
      * @throws Exception 
-     */
+     *//*
     private Connection criaConexao(Boolean autocommit) throws Exception {
     	
     	final String host = "localhost";
@@ -65,9 +65,9 @@ public class ConexaoPostGres {
         return connection;
     }
 
-    /**
+    *//**
      * Fecha conexão com o BD
-     */
+     *//*
     protected void fecharConexao() {
 
         System.out.println("fechaConexao");
@@ -82,11 +82,11 @@ public class ConexaoPostGres {
         }
     }
 
-    /**
+    *//**
      * Método para consultar dado no BD
      * @param stmt
      * @return 
-     */
+     *//*
     protected ResultSet executarSelect(PreparedStatement stmt) {
 
         try {
@@ -104,10 +104,10 @@ public class ConexaoPostGres {
 
     }
 
-    /**
+    *//**
      * Método para deletar dado no BD
      * @param stmt 
-     */
+     *//*
     protected void executarDelete(PreparedStatement stmt) {
 
         try {
@@ -123,3 +123,4 @@ public class ConexaoPostGres {
         }
     }
 }
+*/
