@@ -8,12 +8,12 @@ public abstract class Controller<E> {
 
 	protected Dao<E> dao;
 	
-	abstract List<E> buscar(E entity);
+	public abstract List<E> buscar(E entity);
 
-	abstract void alterar(E entity);
+	public abstract void alterar(E entity);
 
-	abstract void excluir(E entity);
+	public abstract void excluir(E entity);
 
-	abstract void inserir(E entity);
+	public abstract void inserir(E entity);
 
 }

@@ -16,7 +16,7 @@ public class Autor {
 	private String nome;
 	private ImageIcon foto;
 	private File selFile;
-
+	
 	public Integer getId_autor() {
 		return id_autor;
 	}

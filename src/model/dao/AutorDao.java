@@ -5,11 +5,9 @@
 package model.dao;
 
 import java.awt.image.BufferedImage;
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -148,7 +146,6 @@ public class AutorDao implements Dao<Autor>{
     	}
         
     }
-    
     
     @Override
     public void inserir(Autor autor) {
@@ -319,8 +316,8 @@ public class AutorDao implements Dao<Autor>{
             }
         }*/
     
-    public void ImportaAutores(BufferedReader br) throws IOException
+    /*public void importarAutores(BufferedReader br) throws IOException
     {
       
-    }
+    }*/
 }

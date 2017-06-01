@@ -18,6 +18,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JFileChooser;
 
 import controller.AutorController;
+import controller.Controller;
 import model.entity.Autor;
 
 /**
@@ -28,7 +29,7 @@ public class SpotNet extends javax.swing.JFrame {
     
     File selFile;
         
-    AutorController objController=new AutorController();
+    AutorController autorController = new AutorController();
     DefaultListModel listAutores = new DefaultListModel();
     Autor objAutor=new Autor();
     
@@ -60,9 +61,13 @@ public class SpotNet extends javax.swing.JFrame {
 							File image = new File("C:\\Users\\contdiego\\Desktop\\infnet\\projetoIntegrado1\\JavaApplication42\\esqueceusenha.png");
 	                        FileInputStream  fis ;
 	                        fis = new FileInputStream(image);
-	                
-	                       objController.InsereAutor(line, image);
-	                       jProgressBar1.setValue(cont);
+	                        
+	                        Autor autor = new Autor();
+	                        autor.setNome(line);
+	                        autor.setSelFile(image);
+	                        
+	                        autorController.inserir(autor);
+	                        jProgressBar1.setValue(cont);
 	                    
 						} catch (Exception e) {
 	                        e.printStackTrace();
@@ -464,11 +469,13 @@ public class SpotNet extends javax.swing.JFrame {
 
         ImageIcon image;
         
-        try
-        {
-            
-           List<Autor> autores=objController.BuscaAutor(jTextField2.getText()); 
-           listAutores.removeAllElements();
+        try {
+        	
+        	Autor autor = new Autor();
+        	autor.setNome(jTextField2.getText());
+        	
+            List<Autor> autores = autorController.buscar(autor); 
+            listAutores.removeAllElements();
             
            for(int i=0;i<autores.size();i++)
             {
@@ -489,7 +496,7 @@ public class SpotNet extends javax.swing.JFrame {
         }
         catch (Exception ex)
         {
-            Logger.getLogger(SpotNetOld.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(SpotNet.class.getName()).log(Level.SEVERE, null, ex);
         }
 
     }//GEN-LAST:event_jButton2ActionPerformed
@@ -499,14 +506,17 @@ public class SpotNet extends javax.swing.JFrame {
 
         if(!jTextField1.getText().equals(""))
         {
-            try
-            {
-               
+            try {
+            	
                 File image = new File(selFile.getPath());
                 FileInputStream  fis ;
                 fis = new FileInputStream(image);
                 
-                objController.InsereAutor(jTextField1.getText(), selFile);
+                Autor autor = new Autor();
+                autor.setNome(jTextField1.getText());
+                autor.setSelFile(selFile);
+                
+                autorController.inserir(autor);
             }
             catch (Exception e)
             {
@@ -535,11 +545,14 @@ public class SpotNet extends javax.swing.JFrame {
 
     private void jList1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jList1MouseClicked
    
-         List<Autor> autores=objController.BuscaAutor((String) jList1.getSelectedValue()); 
-         objAutor=autores.get(0);
-         jTextField1.setText(autores.get(0).getNome());         
-         autores.get(0).getFoto().getImage().flush();
-         jLabel4.setIcon(autores.get(0).getFoto());   
+    	Autor autor = new Autor();
+    	autor.setNome((String) jList1.getSelectedValue());
+    	
+        List<Autor> autores = autorController.buscar(autor); 
+        objAutor = autores.get(0);
+        jTextField1.setText(autores.get(0).getNome());         
+        autores.get(0).getFoto().getImage().flush();
+        jLabel4.setIcon(autores.get(0).getFoto());   
     }//GEN-LAST:event_jList1MouseClicked
 
     private void jButton6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton6ActionPerformed
@@ -551,33 +564,33 @@ public class SpotNet extends javax.swing.JFrame {
     }//GEN-LAST:event_jButton6ActionPerformed
 
     private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
-        try        
-        {            
-            objController.AlteraAutor(jTextField1.getText(),objAutor);
+        try{            
+        	objAutor.setNome(jTextField1.getText());
+            autorController.alterar(objAutor);
             jLabel3.setText("Autor alterado com sucesso");
         }
-        catch (SQLException ex)
+        catch (RuntimeException ex)
         {
-            Logger.getLogger(SpotNetOld.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(SpotNet.class.getName()).log(Level.SEVERE, null, ex);
         }
     }//GEN-LAST:event_jButton4ActionPerformed
 
     private void jButton5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton5ActionPerformed
          try        
         {            
-            objController.ExcluiAutor(objAutor);
+            autorController.excluir(objAutor);
             jLabel3.setText("Autor alterado com sucesso");
         }
-        catch (SQLException ex)
+        catch (RuntimeException ex)
         {
-            Logger.getLogger(SpotNetOld.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(SpotNet.class.getName()).log(Level.SEVERE, null, ex);
         }
     }//GEN-LAST:event_jButton5ActionPerformed
 
     private void jButton7ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton7ActionPerformed
         // TODO add your handling code here:
         
-        objController.playSound();
+        autorController.playSound();
         
         
     }//GEN-LAST:event_jButton7ActionPerformed
@@ -603,7 +616,10 @@ public class SpotNet extends javax.swing.JFrame {
         // TODO add your handling code here:
         jComboBox1.removeAllItems();
         
-        List<Autor> autores = objController.BuscaAutor("");
+        Autor autor = new Autor();
+        autor.setNome("");
+        
+        List<Autor> autores = autorController.buscar(autor);
         
         for(int i=0; i<autores.size(); i++) {
             jComboBox1.addItem(autores.get(i).getNome());
@@ -640,20 +656,20 @@ public class SpotNet extends javax.swing.JFrame {
                 }
             }
         } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(SpotNetOld.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(SpotNet.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(SpotNetOld.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(SpotNet.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(SpotNetOld.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(SpotNet.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(SpotNetOld.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(SpotNet.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
         //</editor-fold>
 
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new SpotNetOld().setVisible(true);
+                new SpotNet().setVisible(true);
             }
         });
     }

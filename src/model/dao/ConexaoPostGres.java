@@ -15,7 +15,7 @@ public class ConexaoPostGres {
     private static Connection connection;
 
     /**
-     * Chama método criaConexao e retorna conexao aberta com o BD
+     * Chama m�todo criaConexao e retorna conexao aberta com o BD
      * @return Conexão aberta com o banco 
      */
     public Connection conectar() {
@@ -34,20 +34,17 @@ public class ConexaoPostGres {
      * @throws Exception 
      */
     private Connection criaConexao(Boolean autocommit) throws Exception {
-      
-        System.out.println("criaConexao");
+    	
+    	final String host = "localhost";
+        final String db = "spotynet";
+        final String url = "jdbc:postgresql://" + host + "/" + db;
+        final String user = "postgres";
+        final String password = "postgres";
+        final String postgresqlDriver = "org.postgresql.Driver";
         
-        //String host = "192.168.29.182";
-        //String host = "10.5.112.41";
-        String host = "localhost";
-        String db = "spotynet";
-        String url = "jdbc:postgresql://" + host + "/" + db;
-        String user = "postgres";
-        //String password = "@F3d45#2W"; //192.168.8.32
-        //String password = "aA#@234F"; 
-        String password = "postgres";
-        String postgresqlDriver = "org.postgresql.Driver";
-
+        
+        
+        
         try
         {
             Class.forName(postgresqlDriver);
