@@ -57,7 +57,7 @@ public class SpotNet extends javax.swing.JFrame {
 				
 						try {
 							
-							File image = new File("C:\\Users\\contdiego\\Desktop\\infnet\\projetoIntegrado1\\JavaApplication42\\esqueceusenha.png");
+							File image = new File("C:\\Desenvolvimento\\wspNetBeans\\spotnet\\esqueceusenha.png");
 	                        FileInputStream  fis ;
 	                        fis = new FileInputStream(image);
 	                
@@ -297,7 +297,7 @@ public class SpotNet extends javax.swing.JFrame {
             .addGap(0, 583, Short.MAX_VALUE)
         );
 
-        jTabbedPane1.addTab("Usuário", jPanel2);
+        jTabbedPane1.addTab("Usu?rio", jPanel2);
 
         jComboBox1.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
 
@@ -319,7 +319,7 @@ public class SpotNet extends javax.swing.JFrame {
             }
         });
 
-        jButton9.setText("Incluir MÃºsica");
+        jButton9.setText("Incluir Música");
 
         jLabel7.setText("Busca");
 
@@ -489,7 +489,7 @@ public class SpotNet extends javax.swing.JFrame {
         }
         catch (Exception ex)
         {
-            Logger.getLogger(SpotNetOld.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(SpotNet.class.getName()).log(Level.SEVERE, null, ex);
         }
 
     }//GEN-LAST:event_jButton2ActionPerformed
@@ -558,7 +558,7 @@ public class SpotNet extends javax.swing.JFrame {
         }
         catch (SQLException ex)
         {
-            Logger.getLogger(SpotNetOld.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(SpotNet.class.getName()).log(Level.SEVERE, null, ex);
         }
     }//GEN-LAST:event_jButton4ActionPerformed
 
@@ -570,7 +570,7 @@ public class SpotNet extends javax.swing.JFrame {
         }
         catch (SQLException ex)
         {
-            Logger.getLogger(SpotNetOld.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(SpotNet.class.getName()).log(Level.SEVERE, null, ex);
         }
     }//GEN-LAST:event_jButton5ActionPerformed
 
@@ -596,7 +596,7 @@ public class SpotNet extends javax.swing.JFrame {
     }//GEN-LAST:event_jButton8ActionPerformed
     
     /**
-     * Retorna todos os autores ao iniciar a aplicação. Popula da combobox com todos os autores.
+     * Retorna todos os autores ao iniciar a aplicacao. Popula da combobox com todos os autores.
      * @param evt
      */
     private void jTabbedPane1FocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_jTabbedPane1FocusGained
@@ -640,20 +640,20 @@ public class SpotNet extends javax.swing.JFrame {
                 }
             }
         } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(SpotNetOld.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(SpotNet.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(SpotNetOld.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(SpotNet.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(SpotNetOld.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(SpotNet.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(SpotNetOld.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(SpotNet.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
         //</editor-fold>
 
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new SpotNetOld().setVisible(true);
+                new SpotNet().setVisible(true);
             }
         });
     }

@@ -98,7 +98,7 @@ public class AutorController extends Controller<Autor>{
     public void playSound() {
     try
     {
-        AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(new File("C:\\Users\\contdiego\\Desktop\\infnet\\projetoIntegrado1\\JavaApplication42\\cow.wav").getAbsoluteFile());
+        AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(new File("C:\\Desenvolvimento\\wspNetBeans\\spotnet\\cow.wav").getAbsoluteFile());
         Clip clip = AudioSystem.getClip();
         clip.open(audioInputStream);
         clip.start();

@@ -39,13 +39,13 @@ public class ConexaoPostGres {
         
         //String host = "192.168.29.182";
         //String host = "10.5.112.41";
-        String host = "localhost";
+        String host = "192.168.99.100";
         String db = "spotynet";
         String url = "jdbc:postgresql://" + host + "/" + db;
         String user = "postgres";
         //String password = "@F3d45#2W"; //192.168.8.32
         //String password = "aA#@234F"; 
-        String password = "postgres";
+        String password = "password";
         String postgresqlDriver = "org.postgresql.Driver";
 
         try
