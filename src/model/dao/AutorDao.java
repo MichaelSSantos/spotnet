@@ -5,11 +5,9 @@
 package model.dao;
 
 import java.awt.image.BufferedImage;
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -23,173 +21,167 @@ import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 
 import model.entity.Autor;
-import org.apache.commons.lang3.StringUtils;
 
 /**
  * Classe para persistência de autor no banco de dados.
- *
+ * 
  * @author Infnet
  */
-public class AutorDao implements Dao<Autor> {
+public class AutorDao implements Dao<Autor>{
+    
+	private static final Logger LOGGER = Logger.getLogger(AutorDao.class.getName());
 
-    private static final Logger LOGGER = Logger.getLogger(AutorDao.class.getName());
-
-    private Connection connection;
-
+	private Connection connection;
+    
     public AutorDao() {
-        this.connection = new ConexaoPostGres().conectar();
+    	this.connection = new ConnectionFactory().getConnection();
     }
-
+    
     @Override
     public List<Autor> buscar(Autor autor) {
+    	
+    	List<Autor> autores = new ArrayList<>();
+    	String sql = "select * from autor where nome like '%?%' and foto is not null";
 
-        List<Autor> autores = new ArrayList<>();
-        String sql;
-        if (StringUtils.isNotBlank(autor.getNome())) {
-            sql = "select * from autor where nome like '%?%' and foto is not null";
-        } else {
-            sql = "select * from autor where foto is not null";
-        }
+    	try {
+    		PreparedStatement stmt = connection.prepareStatement(sql);
+    		stmt.setString(1, autor.getNome());
 
-        try {
-            PreparedStatement stmt = connection.prepareStatement(sql);
-            if (StringUtils.isNotBlank(autor.getNome())) {
-                stmt.setString(1, autor.getNome());
-            }
-
-            ResultSet rs = stmt.executeQuery();
+    		ResultSet rs = stmt.executeQuery(sql);
 
             while (rs.next()) {
                 try {
                     byte[] imageData = rs.getBytes("foto");
-
+                    
                     File tmpFile = new File("tmpImage");
                     FileOutputStream fos = new FileOutputStream(tmpFile);
-
+                   
                     fos.write(imageData);
                     fos.close();
-
-                    String ss = tmpFile.getAbsolutePath();
-                    System.out.println(ss);
-                    BufferedImage bf = ImageIO.read(new File(ss));
-
+                    
+                    String ss=tmpFile.getAbsolutePath();
+                    BufferedImage bf=ImageIO.read(new File(ss));
+                    
                     ImageIcon image = new ImageIcon(bf);
-
+                    
                     Autor ObjAut = new Autor();
                     ObjAut.setFoto(image);
                     ObjAut.setNome(rs.getString("nome"));
                     ObjAut.setId_autor(rs.getInt("id_autor"));
 
                     autores.add(ObjAut);
-
-                } catch (Exception e) {
+                    
+                } catch(Exception e) {
                     LOGGER.log(Level.SEVERE, e.getMessage());
                     throw new RuntimeException(e);
-
+                
                 } finally {
-                    connection.close();
+                	connection.close();
                 }
-
+                
             }
-
+            
             return autores;
-
+            
         } catch (SQLException ex) {
-            LOGGER.log(Level.SEVERE, ex.getMessage());
-            throw new RuntimeException(ex);
+        	LOGGER.log(Level.SEVERE, ex.getMessage());
+        	throw new RuntimeException(ex);
         }
-
+        
+    	
     }
-
+    
     @Override
     public void alterar(Autor autor) {
-
-        String sql = "update autor set nome=? where id_autor=?";
-
-        try {
-            try {
-                PreparedStatement stmt = connection.prepareStatement(sql);
-                stmt.setString(1, autor.getNome());
-                stmt.setInt(2, autor.getId_autor());
-
-                stmt.execute();
-
-            } catch (Exception ex) {
-                LOGGER.log(Level.SEVERE, ex.getMessage());
-                throw new RuntimeException(ex);
-
-            } finally {
-                connection.commit();
-                connection.close();
-            }
-
-        } catch (SQLException ex) {
-            LOGGER.log(Level.SEVERE, ex.getMessage());
-            throw new RuntimeException(ex);
-        }
+    	
+    	String sql = "update autor set nome=? where id_autor=?";
+    	
+    	try {
+    		try {
+    			PreparedStatement stmt = connection.prepareStatement(sql);   
+	            stmt.setString(1, autor.getNome());
+	            stmt.setInt(2, autor.getId_autor());
+	            
+	            stmt.execute();
+	            
+	    	 } catch (Exception ex) {
+	         	LOGGER.log(Level.SEVERE, ex.getMessage());
+	         	throw new RuntimeException(ex);
+	         	
+	         } finally {
+	        	 connection.commit();
+	             connection.close();
+	         }
+    	
+    	} catch (SQLException ex) {
+         	LOGGER.log(Level.SEVERE, ex.getMessage());
+         	throw new RuntimeException(ex);
+    	}
     }
-
+    
     @Override
     public void excluir(Autor autor) {
-
-        String sql = "delete from autor where id_autor=?";
-
+        
+    	String sql = "delete from autor where id_autor=?";
+        
         try {
-            try {
-                PreparedStatement stmt = connection.prepareStatement(sql);
-                stmt.setInt(1, autor.getId_autor());
-
-                stmt.execute();
-
-            } catch (Exception ex) {
-                LOGGER.log(Level.SEVERE, ex.getMessage());
-                throw new RuntimeException(ex);
-
-            } finally {
-                connection.commit();
-                connection.close();
+        	try {
+        		PreparedStatement stmt = connection.prepareStatement(sql);
+        		stmt.setInt(1, autor.getId_autor());
+                
+        		stmt.execute();
+            
+        	} catch (Exception ex) {
+	         	LOGGER.log(Level.SEVERE, ex.getMessage());
+	         	throw new RuntimeException(ex);
+            
+        	} finally {
+                 connection.commit();
+                 connection.close();
             }
-
+        	
         } catch (SQLException ex) {
-            LOGGER.log(Level.SEVERE, ex.getMessage());
-            throw new RuntimeException(ex);
-        }
-
+         	LOGGER.log(Level.SEVERE, ex.getMessage());
+         	throw new RuntimeException(ex);
+    	}
+        
     }
-
+    
     @Override
     public void inserir(Autor autor) {
+    	
+    	String sql = " insert into autor (nome,foto) values (?,?)";
+    	
+    	try {
+    		try {
+    			File image = new File(autor.getSelFile().getPath());
+    			FileInputStream  fis = new FileInputStream(image);
 
-        String sql = " insert into autor (nome,foto) values (?,?)";
-
-        try {
-            try {
-                File image = new File(autor.getSelFile().getPath());
-                FileInputStream fis = new FileInputStream(image);
-
-                PreparedStatement stmt = connection.prepareStatement(sql);
+                PreparedStatement stmt = connection.prepareStatement(sql);               
                 stmt.setString(1, autor.getNome());
-                stmt.setBinaryStream(2, fis, (int) (image.length()));
+                stmt.setBinaryStream(2,fis,(int) (image.length()));
 
                 stmt.execute();
-
+    	
             } catch (Exception ex) {
-                LOGGER.log(Level.SEVERE, ex.getMessage());
-                throw new RuntimeException(ex);
-
-            } finally {
+            	LOGGER.log(Level.SEVERE, ex.getMessage());
+            	throw new RuntimeException(ex);
+    		
+    		} finally {
                 connection.commit();
                 connection.close();
             }
-
-        } catch (SQLException ex) {
-            LOGGER.log(Level.SEVERE, ex.getMessage());
-            throw new RuntimeException(ex);
-        }
-
+    	
+    	} catch (SQLException ex) {
+         	LOGGER.log(Level.SEVERE, ex.getMessage());
+         	throw new RuntimeException(ex);
+    	}
+    	
     }
-
-    /* public List<Autor> BuscaAutor(String nome) {
+    
+    
+    
+   /* public List<Autor> BuscaAutor(String nome) {
         connection = conexao.conectar();
         Statement stmt = null;
         List<Autor> autores = new ArrayList();
@@ -246,7 +238,8 @@ public class AutorDao implements Dao<Autor> {
         return autores;
 
     }   */
- /*public void AlteraAutor(String nome, Autor objAutor) throws SQLException
+    
+    /*public void AlteraAutor(String nome, Autor objAutor) throws SQLException
     {
         connection = conexao.conectar();
         Statement stmt = null;
@@ -268,7 +261,8 @@ public class AutorDao implements Dao<Autor> {
                 connection.close();
             }
         }*/
- /* public void ExcluiAutor(Autor objAutor) throws SQLException
+     
+   /* public void ExcluiAutor(Autor objAutor) throws SQLException
     {
         connection = conexao.conectar();
         Statement stmt = null;
@@ -290,7 +284,8 @@ public class AutorDao implements Dao<Autor> {
                 connection.close();
             }
         }*/
- /*public void InsereAutor(String nome, File selFile) throws SQLException
+    
+    /*public void InsereAutor(String nome, File selFile) throws SQLException
     {
         connection = conexao.conectar();
         Statement stmt = null;
@@ -320,7 +315,9 @@ public class AutorDao implements Dao<Autor> {
                 connection.close();
             }
         }*/
-    public void ImportaAutores(BufferedReader br) throws IOException {
-
-    }
+    
+    /*public void importarAutores(BufferedReader br) throws IOException
+    {
+      
+    }*/
 }

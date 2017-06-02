@@ -1,4 +1,4 @@
-package model.dao;
+/*package model.dao;
 
 import java.sql.*;
 import java.sql.Connection;
@@ -6,18 +6,18 @@ import java.sql.SQLException;
 import java.util.logging.Level;
 
 
-/**
+*//**
  *
  * @author contdiego
- */
+ *//*
 public class ConexaoPostGres {
 
     private static Connection connection;
 
-    /**
-     * Chama método criaConexao e retorna conexao aberta com o BD
+    *//**
+     * Chama m�todo criaConexao e retorna conexao aberta com o BD
      * @return Conexão aberta com o banco 
-     */
+     *//*
     public Connection conectar() {
         try {
             return criaConexao(false);
@@ -27,27 +27,24 @@ public class ConexaoPostGres {
         return null;
     }
 
-    /**
+    *//**
      * Cria conexão com o banco de dados
      * @param autocommit   
      * @return
      * @throws Exception 
-     */
+     *//*
     private Connection criaConexao(Boolean autocommit) throws Exception {
-      
-        System.out.println("criaConexao");
+    	
+    	final String host = "localhost";
+        final String db = "spotynet";
+        final String url = "jdbc:postgresql://" + host + "/" + db;
+        final String user = "postgres";
+        final String password = "postgres";
+        final String postgresqlDriver = "org.postgresql.Driver";
         
-        //String host = "192.168.29.182";
-        //String host = "10.5.112.41";
-        String host = "192.168.99.100";
-        String db = "spotynet";
-        String url = "jdbc:postgresql://" + host + "/" + db;
-        String user = "postgres";
-        //String password = "@F3d45#2W"; //192.168.8.32
-        //String password = "aA#@234F"; 
-        String password = "password";
-        String postgresqlDriver = "org.postgresql.Driver";
-
+        
+        
+        
         try
         {
             Class.forName(postgresqlDriver);
@@ -68,9 +65,9 @@ public class ConexaoPostGres {
         return connection;
     }
 
-    /**
+    *//**
      * Fecha conexão com o BD
-     */
+     *//*
     protected void fecharConexao() {
 
         System.out.println("fechaConexao");
@@ -85,11 +82,11 @@ public class ConexaoPostGres {
         }
     }
 
-    /**
+    *//**
      * Método para consultar dado no BD
      * @param stmt
      * @return 
-     */
+     *//*
     protected ResultSet executarSelect(PreparedStatement stmt) {
 
         try {
@@ -107,10 +104,10 @@ public class ConexaoPostGres {
 
     }
 
-    /**
+    *//**
      * Método para deletar dado no BD
      * @param stmt 
-     */
+     *//*
     protected void executarDelete(PreparedStatement stmt) {
 
         try {
@@ -126,3 +123,4 @@ public class ConexaoPostGres {
         }
     }
 }
+*/
