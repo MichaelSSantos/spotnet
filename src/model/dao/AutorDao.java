@@ -1,323 +1,189 @@
 /*
- * To change this template, choose Tools | Templates
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
 package model.dao;
 
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.io.Serializable;
+import javax.persistence.Query;
+import javax.persistence.EntityNotFoundException;
+import model.entity.Musica;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-import javax.imageio.ImageIO;
-import javax.swing.ImageIcon;
-
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import model.dao.exceptions.NonexistentEntityException;
 import model.entity.Autor;
 
 /**
- * Classe para persist�ncia de autor no banco de dados.
- * 
- * @author Infnet
+ *
+ * @author Michael
  */
-public class AutorDao implements Dao<Autor>{
-    
-	private static final Logger LOGGER = Logger.getLogger(AutorDao.class.getName());
+public class AutorDAO implements SpotNetDAO<Autor> {
 
-	private Connection connection;
-    
-    public AutorDao() {
-    	this.connection = new ConnectionFactory().getConnection();
+    private EntityManagerFactory emf = null;
+
+    public AutorDAO(EntityManagerFactory emf) {
+        this.emf = emf;
     }
-    
+
+    public EntityManager getEntityManager() {
+        return emf.createEntityManager();
+    }
+
     @Override
-    public List<Autor> buscar(Autor autor) {
-    	
-    	List<Autor> autores = new ArrayList<>();
-    	String sql = "select * from autor where nome like '%?%' and foto is not null";
-
-    	try {
-    		PreparedStatement stmt = connection.prepareStatement(sql);
-    		stmt.setString(1, autor.getNome());
-
-    		ResultSet rs = stmt.executeQuery(sql);
-
-            while (rs.next()) {
-                try {
-                    byte[] imageData = rs.getBytes("foto");
-                    
-                    File tmpFile = new File("tmpImage");
-                    FileOutputStream fos = new FileOutputStream(tmpFile);
-                   
-                    fos.write(imageData);
-                    fos.close();
-                    
-                    String ss=tmpFile.getAbsolutePath();
-                    BufferedImage bf=ImageIO.read(new File(ss));
-                    
-                    ImageIcon image = new ImageIcon(bf);
-                    
-                    Autor ObjAut = new Autor();
-                    ObjAut.setFoto(image);
-                    ObjAut.setNome(rs.getString("nome"));
-                    ObjAut.setId_autor(rs.getInt("id_autor"));
-
-                    autores.add(ObjAut);
-                    
-                } catch(Exception e) {
-                    LOGGER.log(Level.SEVERE, e.getMessage());
-                    throw new RuntimeException(e);
-                
-                } finally {
-                	connection.close();
-                }
-                
-            }
-            
-            return autores;
-            
-        } catch (SQLException ex) {
-        	LOGGER.log(Level.SEVERE, ex.getMessage());
-        	throw new RuntimeException(ex);
+    public void create(Autor autor) {
+        if (autor.getMusicaList() == null) {
+            autor.setMusicaList(new ArrayList<Musica>());
         }
-        
-    	
-    }
-    
-    @Override
-    public void alterar(Autor autor) {
-    	
-    	String sql = "update autor set nome=? where id_autor=?";
-    	
-    	try {
-    		try {
-    			PreparedStatement stmt = connection.prepareStatement(sql);   
-	            stmt.setString(1, autor.getNome());
-	            stmt.setInt(2, autor.getId_autor());
-	            
-	            stmt.execute();
-	            
-	    	 } catch (Exception ex) {
-	         	LOGGER.log(Level.SEVERE, ex.getMessage());
-	         	throw new RuntimeException(ex);
-	         	
-	         } finally {
-	        	 connection.commit();
-	             connection.close();
-	         }
-    	
-    	} catch (SQLException ex) {
-         	LOGGER.log(Level.SEVERE, ex.getMessage());
-         	throw new RuntimeException(ex);
-    	}
-    }
-    
-    @Override
-    public void excluir(Autor autor) {
-        
-    	String sql = "delete from autor where id_autor=?";
-        
+        EntityManager em = null;
         try {
-        	try {
-        		PreparedStatement stmt = connection.prepareStatement(sql);
-        		stmt.setInt(1, autor.getId_autor());
-                
-        		stmt.execute();
-            
-        	} catch (Exception ex) {
-	         	LOGGER.log(Level.SEVERE, ex.getMessage());
-	         	throw new RuntimeException(ex);
-            
-        	} finally {
-                 connection.commit();
-                 connection.close();
+            em = getEntityManager();
+            em.getTransaction().begin();
+            List<Musica> attachedMusicaList = new ArrayList<Musica>();
+            for (Musica musicaListMusicaToAttach : autor.getMusicaList()) {
+                musicaListMusicaToAttach = em.getReference(musicaListMusicaToAttach.getClass(), musicaListMusicaToAttach.getIdMusica());
+                attachedMusicaList.add(musicaListMusicaToAttach);
             }
-        	
-        } catch (SQLException ex) {
-         	LOGGER.log(Level.SEVERE, ex.getMessage());
-         	throw new RuntimeException(ex);
-    	}
-        
+            autor.setMusicaList(attachedMusicaList);
+            em.persist(autor);
+            for (Musica musicaListMusica : autor.getMusicaList()) {
+                Autor oldAutorOfMusicaListMusica = musicaListMusica.getAutor();
+                musicaListMusica.setAutor(autor);
+                musicaListMusica = em.merge(musicaListMusica);
+                if (oldAutorOfMusicaListMusica != null) {
+                    oldAutorOfMusicaListMusica.getMusicaList().remove(musicaListMusica);
+                    oldAutorOfMusicaListMusica = em.merge(oldAutorOfMusicaListMusica);
+                }
+            }
+            em.getTransaction().commit();
+        } finally {
+            if (em != null) {
+                em.close();
+            }
+        }
     }
-    
+
     @Override
-    public void inserir(Autor autor) {
-    	
-    	String sql = " insert into autor (nome,foto) values (?,?)";
-    	
-    	try {
-    		try {
-    			File image = new File(autor.getSelFile().getPath());
-    			FileInputStream  fis = new FileInputStream(image);
-
-                PreparedStatement stmt = connection.prepareStatement(sql);               
-                stmt.setString(1, autor.getNome());
-                stmt.setBinaryStream(2,fis,(int) (image.length()));
-
-                stmt.execute();
-    	
-            } catch (Exception ex) {
-            	LOGGER.log(Level.SEVERE, ex.getMessage());
-            	throw new RuntimeException(ex);
-    		
-    		} finally {
-                connection.commit();
-                connection.close();
+    public void update(Autor autor) throws NonexistentEntityException, Exception {
+        EntityManager em = null;
+        try {
+            em = getEntityManager();
+            em.getTransaction().begin();
+            Autor persistentAutor = em.find(Autor.class, autor.getIdAutor());
+            List<Musica> musicaListOld = persistentAutor.getMusicaList();
+            List<Musica> musicaListNew = autor.getMusicaList();
+            List<Musica> attachedMusicaListNew = new ArrayList<Musica>();
+            for (Musica musicaListNewMusicaToAttach : musicaListNew) {
+                musicaListNewMusicaToAttach = em.getReference(musicaListNewMusicaToAttach.getClass(), musicaListNewMusicaToAttach.getIdMusica());
+                attachedMusicaListNew.add(musicaListNewMusicaToAttach);
             }
-    	
-    	} catch (SQLException ex) {
-         	LOGGER.log(Level.SEVERE, ex.getMessage());
-         	throw new RuntimeException(ex);
-    	}
-    	
+            musicaListNew = attachedMusicaListNew;
+            autor.setMusicaList(musicaListNew);
+            autor = em.merge(autor);
+            for (Musica musicaListOldMusica : musicaListOld) {
+                if (!musicaListNew.contains(musicaListOldMusica)) {
+                    musicaListOldMusica.setAutor(null);
+                    musicaListOldMusica = em.merge(musicaListOldMusica);
+                }
+            }
+            for (Musica musicaListNewMusica : musicaListNew) {
+                if (!musicaListOld.contains(musicaListNewMusica)) {
+                    Autor oldAutorOfMusicaListNewMusica = musicaListNewMusica.getAutor();
+                    musicaListNewMusica.setAutor(autor);
+                    musicaListNewMusica = em.merge(musicaListNewMusica);
+                    if (oldAutorOfMusicaListNewMusica != null && !oldAutorOfMusicaListNewMusica.equals(autor)) {
+                        oldAutorOfMusicaListNewMusica.getMusicaList().remove(musicaListNewMusica);
+                        oldAutorOfMusicaListNewMusica = em.merge(oldAutorOfMusicaListNewMusica);
+                    }
+                }
+            }
+            em.getTransaction().commit();
+        } catch (Exception ex) {
+            String msg = ex.getLocalizedMessage();
+            if (msg == null || msg.length() == 0) {
+                Integer id = autor.getIdAutor();
+                if (findById(id) == null) {
+                    throw new NonexistentEntityException("O autor com o id " + id + " não existe.");
+                }
+            }
+            throw ex;
+        } finally {
+            if (em != null) {
+                em.close();
+            }
+        }
     }
-    
-    
-    
-   /* public List<Autor> BuscaAutor(String nome) {
-        connection = conexao.conectar();
-        Statement stmt = null;
-        List<Autor> autores = new ArrayList();
 
-        String sql = "select * from autor where nome like '%"+nome+"%' and foto is not null";
-        System.out.println(sql);
-        try
-        {
-            stmt = connection.createStatement();
-            ResultSet rs = stmt.executeQuery(sql);
-
-            
-            while (rs.next())
-            {
-                Autor ObjAut=new Autor();
-
-                try
-                {
-                    byte[] imageData = rs.getBytes("foto");
-                    
-                    File tmpFile = new File("tmpImage");
-                    FileOutputStream fos = new FileOutputStream(tmpFile);
-                   
-                    fos.write(imageData);
-                    fos.close();
-                    
-                
-                    String ss=tmpFile.getAbsolutePath();
-                    BufferedImage bf=ImageIO.read(new File(ss));
-                    
-                    ImageIcon image = new ImageIcon(bf);
-                    
-                    ObjAut.setFoto(image);
-                    ObjAut.setNome(rs.getString("nome"));
-                    ObjAut.setId_autor(rs.getInt("id_autor"));
-                    
-                    autores.add(ObjAut);
-                    
-                }
-                catch(Exception e)
-                {
-                    e.printStackTrace();
-                }
-                
+    public void delete(Integer id) throws NonexistentEntityException {
+        EntityManager em = null;
+        try {
+            em = getEntityManager();
+            em.getTransaction().begin();
+            Autor autor;
+            try {
+                autor = em.getReference(Autor.class, id);
+                autor.getIdAutor();
+            } catch (EntityNotFoundException enfe) {
+                throw new NonexistentEntityException("O autor com o id " + id + " não existe.", enfe);
             }
-            connection.close();
-            
+            List<Musica> musicaList = autor.getMusicaList();
+            for (Musica musicaListMusica : musicaList) {
+                musicaListMusica.setAutor(null);
+                musicaListMusica = em.merge(musicaListMusica);
+            }
+            em.remove(autor);
+            em.getTransaction().commit();
+        } finally {
+            if (em != null) {
+                em.close();
+            }
         }
-        catch (SQLException ex)
-        {
-            Logger.getLogger(SpotNet.class.getName()).log(Level.SEVERE, null, ex);
+    }
+
+    @Override
+    public List<Autor> findAll() {
+        EntityManager em = getEntityManager();
+        try {
+            em.getTransaction().begin();
+            Query query = em.createNamedQuery("Autor.findAll");
+            return query.getResultList();
+        } finally {
+            em.close();
         }
-        
-        return autores;
+    }
 
-    }   */
-    
-    /*public void AlteraAutor(String nome, Autor objAutor) throws SQLException
-    {
-        connection = conexao.conectar();
-        Statement stmt = null;
-        
-        try
-            {
-                String query = "update autor set nome='"+nome+"' where id_autor="+objAutor.getId_autor()+"";
-                PreparedStatement preparedStmt = connection.prepareStatement(query);   
-                System.out.println(preparedStmt);
-                preparedStmt.execute();
-            }
-            catch (Exception e)
-            {
-                e.printStackTrace();
-            }
-            finally
-            {
-                connection.commit();
-                connection.close();
-            }
-        }*/
-     
-   /* public void ExcluiAutor(Autor objAutor) throws SQLException
-    {
-        connection = conexao.conectar();
-        Statement stmt = null;
-        
-        try
-            {
-                String query = "delete from autor where id_autor="+objAutor.getId_autor()+"";
-                PreparedStatement preparedStmt = connection.prepareStatement(query);   
-                System.out.println(preparedStmt);
-                preparedStmt.execute();
-            }
-            catch (Exception e)
-            {
-                e.printStackTrace();
-            }
-            finally
-            {
-                connection.commit();
-                connection.close();
-            }
-        }*/
-    
-    /*public void InsereAutor(String nome, File selFile) throws SQLException
-    {
-        connection = conexao.conectar();
-        Statement stmt = null;
-        
-        try
-            {
-                File image = new File(selFile.getPath());
+    public List<Autor> findByNome(String nome) {
+        EntityManager em = getEntityManager();
+        try {
+            em.getTransaction().begin();
+            Query query = em.createNamedQuery("Autor.findByNome");
+            query.setParameter("nome", "%" + nome + "%");
+            return (List<Autor>) query.getResultList();
+        } finally {
+            em.close();
+        }
+    }
 
-                FileInputStream  fis ;
-                fis = new FileInputStream(image);
+    @Override
+    public Autor findById(Integer id) {
+        EntityManager em = getEntityManager();
+        try {
+            return em.find(Autor.class, id);
+        } finally {
+            em.close();
+        }
+    }
 
-                String query = " insert into autor (nome,foto)values(?,?)";
-                PreparedStatement preparedStmt = connection.prepareStatement(query);               
-                preparedStmt.setString(1, nome);
-                preparedStmt.setBinaryStream(2,fis,(int) (image.length()));
-
-                System.out.println(preparedStmt);
-                preparedStmt.execute();
-            }
-            catch (Exception e)
-            {
-                e.printStackTrace();
-            }
-            finally
-            {
-                connection.commit();
-                connection.close();
-            }
-        }*/
-    
-    /*public void importarAutores(BufferedReader br) throws IOException
-    {
-      
-    }*/
+    public List<String> findAllNome() {
+        EntityManager em = getEntityManager();
+        try {
+            em.getTransaction().begin();
+            Query query = em.createNamedQuery("Autor.findAllNome");
+            return query.getResultList();
+        } finally {
+            em.close();
+        }
+    }
 }
